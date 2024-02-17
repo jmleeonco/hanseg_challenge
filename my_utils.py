@@ -164,7 +164,7 @@ def sub_inference(valid_transform, image_3d, dim):
     print('using : ', device)
 
     if dim == 0:
-        model = torch.load('models/DICEcdice0.6943_expID679_axisx_aug6_modelUnet10_optimizerAdam_lossHayoung_lr0.0001_lrstop1e-07_lrdecay0.5_batch_size4_patience3_pretrainedNon.pth', map_location=device)
+        model = torch.load('models/train_only_model_188_X.pth', map_location=device)
         model.eval()
 
         ##### x ######
@@ -191,7 +191,7 @@ def sub_inference(valid_transform, image_3d, dim):
             output_3dx[:,slice_idx,:,:] = resized_output
         return output_3dx
     elif dim == 1:
-        model = torch.load('models/DICEcdice0.7012_expID941_axisy_aug6_modelUnet10_optimizerAdam_lossHayoung_lr0.0001_lrstop1e-07_lrdecay0.5_batch_size4_patience3_pretrainedNon.pth', map_location=device)
+        model = torch.load('models/train_only_model_187_Y.pth', map_location=device)
         model.eval()
         ##### y ######
         resize_transform = transforms.Compose(
@@ -217,7 +217,7 @@ def sub_inference(valid_transform, image_3d, dim):
             output_3dy[:,:,slice_idx,:] = resized_output
         return output_3dy
     elif dim ==2 :
-        model = torch.load('models/DICEcdice0.7400_expID861_comb0_axisz_aug6_modelUnet10_optimizerAdam_lossHayoung_lr0.0001_lrstop1e-07_lrdecay0.5_batch_size2_patience3_pretrainedNon.pth', map_location=device)
+        model = torch.load('models/train_only_model_186_Z.pth', map_location=device)
         model.eval()
 
         ##### z ######
@@ -244,95 +244,6 @@ def sub_inference(valid_transform, image_3d, dim):
             output_3dz[:,:,:,slice_idx] = resized_output
         return output_3dz
 
-# def sub_inference(valid_transform, image_3d, dim):
-#     # cuda available
-#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#     print('using : ', device)
-
-#     if dim == 0:
-#         model = torch.load('models/DICEcdice0.6943_expID679_axisx_aug6_modelUnet10_optimizerAdam_lossHayoung_lr0.0001_lrstop1e-07_lrdecay0.5_batch_size4_patience3_pretrainedNon.pth', map_location=device)
-#         model.eval()
-#         model.to(device).half()  
-
-#         ##### x ######
-#         resize_transform = transforms.Compose(
-#             [
-#                 transforms.EnsureChannelFirstd(keys=["image"],channel_dim=0),
-#                 transforms.Resized(keys=["image"], spatial_size=[image_3d.shape[1], image_3d.shape[2]], mode='bilinear'),
-#             ]
-#         )
-#         output_3dx = np.zeros((31,) + image_3d.shape,dtype=np.float16)
-#         for slice_idx in (range(image_3d.shape[0])):
-#             image_data = image_3d[slice_idx,:,:]
-#             image_data = np.stack([image_data,image_data,image_data],axis=0) #.astype(np.float16) 
-#             with torch.no_grad():
-#                 transformed_data = valid_transform({"image": image_data})
-#                 with torch.autocast(device_type=device.type, dtype=torch.float16):
-#                     output = model(transformed_data["image"].to(device).unsqueeze(dim=0).half())
-#                     output = torch.nn.Softmax(dim=1)(output)
-#                     output = output.squeeze().detach().cpu().numpy().astype(np.float16)
-
-#                 resized_output = resize_transform({"image": output})
-#                 resized_output = resized_output['image']
-#             # break
-#             output_3dx[:,slice_idx,:,:] = resized_output
-#         return output_3dx
-#     elif dim == 1:
-#         model = torch.load('models/DICEcdice0.7012_expID941_axisy_aug6_modelUnet10_optimizerAdam_lossHayoung_lr0.0001_lrstop1e-07_lrdecay0.5_batch_size4_patience3_pretrainedNon.pth', map_location=device)
-#         model.eval()
-#         model.to(device).half()  
-
-#         ##### y ######
-#         resize_transform = transforms.Compose(
-#             [
-#                 transforms.EnsureChannelFirstd(keys=["image"],channel_dim=0),
-#                 transforms.Resized(keys=["image"], spatial_size=[image_3d.shape[0], image_3d.shape[2]], mode='bilinear'),
-#             ]
-#         )
-#         output_3dy = np.zeros((31,) + image_3d.shape,dtype=np.float16)
-#         for slice_idx in (range(image_3d.shape[1])):
-#             image_data = image_3d[:,slice_idx,:]
-#             image_data = np.stack([image_data,image_data,image_data],axis=0) #.astype(np.float16) 
-#             with torch.no_grad():
-#                 transformed_data = valid_transform({"image": image_data})
-#                 with torch.autocast(device_type=device.type, dtype=torch.float16):
-#                     output = model(transformed_data["image"].to(device).unsqueeze(dim=0).half())
-#                     output = torch.nn.Softmax(dim=1)(output)
-#                     output = output.squeeze().detach().cpu().numpy().astype(np.float16)
-
-#                 resized_output = resize_transform({"image": output})
-#                 resized_output = resized_output['image']
-#             # break
-#             output_3dy[:,:,slice_idx,:] = resized_output
-#         return output_3dy
-#     elif dim ==2 :
-#         model = torch.load('models/DICEcdice0.7400_expID861_comb0_axisz_aug6_modelUnet10_optimizerAdam_lossHayoung_lr0.0001_lrstop1e-07_lrdecay0.5_batch_size2_patience3_pretrainedNon.pth', map_location=device)
-#         model.eval()
-#         model.to(device).half()  
-
-#         ##### z ######
-#         resize_transform = transforms.Compose(
-#             [
-#                 transforms.EnsureChannelFirstd(keys=["image"],channel_dim=0),
-#                 transforms.Resized(keys=["image"], spatial_size=[image_3d.shape[0], image_3d.shape[1]], mode='bilinear'),
-#             ]
-#         )
-#         output_3dz = np.zeros((31,) + image_3d.shape,dtype=np.float16)
-#         for slice_idx in (range(image_3d.shape[2])):
-#             image_data = image_3d[:,:,slice_idx]
-#             image_data = np.stack([image_data,image_data,image_data],axis=0) #.astype(np.float16) 
-#             with torch.no_grad():
-#                 transformed_data = valid_transform({"image": image_data})
-#                 with torch.autocast(device_type=device.type, dtype=torch.float16):
-#                     output = model(transformed_data["image"].to(device).unsqueeze(dim=0).half())
-#                     output = torch.nn.Softmax(dim=1)(output)
-#                     output = output.squeeze().detach().cpu().numpy().astype(np.float16)
-
-#                 resized_output = resize_transform({"image": output})
-#                 resized_output = resized_output['image']
-#             # break
-#             output_3dz[:,:,:,slice_idx] = resized_output
-#         return output_3dz
     
 def inference(image_3d):
 
@@ -342,7 +253,7 @@ def inference(image_3d):
             transforms.EnsureChannelFirstd(keys=["image"],channel_dim=0),
             transforms.ScaleIntensityRanged(
                 keys=["image"],
-                a_min=-1000,
+                a_min=-500,
                 a_max=1500,
                 b_min=0.0,
                 b_max=1.0,
@@ -352,8 +263,8 @@ def inference(image_3d):
         ]
     )
     output_3d = np.zeros((31,) + image_3d.shape,dtype=np.float32)
-    output_3d += sub_inference(valid_transform, image_3d, 0)
-    output_3d += sub_inference(valid_transform, image_3d, 1)
+    output_3d += sub_inference(valid_transform, image_3d, 0) * 0.5
+    output_3d += sub_inference(valid_transform, image_3d, 1) * 0.5
     output_3d += sub_inference(valid_transform, image_3d, 2)
 
     output_3d = np.argmax(output_3d,axis=0)
